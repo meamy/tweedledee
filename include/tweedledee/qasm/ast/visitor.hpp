@@ -113,6 +113,13 @@ protected:
 		}
 	}
 
+	void visit_stmt_reset(stmt_reset* node)
+	{
+		for (auto& child : *node) {
+			visit(const_cast<ast_node*>(&child));
+		}
+	}
+
 	void visit_stmt_unitary(stmt_unitary* node)
 	{
 		for (auto& child : *node) {
@@ -210,6 +217,10 @@ private:
 			derived().visit_stmt_measure(static_cast<stmt_measure*>(node));
 			break;
 
+		case ast_node_kinds::stmt_reset:
+			derived().visit_stmt_reset(static_cast<stmt_reset*>(node));
+			break;
+
 		case ast_node_kinds::stmt_unitary:
 			derived().visit_stmt_unitary(static_cast<stmt_unitary*>(node));
 			break;
@@ -240,6 +251,7 @@ private:
 			break;
 
 		default:
+            std::cerr << "Warning: no visitor for node <" << ast_node_name(node->kind()) << ">" << std::endl;
 			break;
 		}
 
@@ -392,6 +404,12 @@ public:
 	void visit_stmt_measure(stmt_measure* node)
 	{
 		os_ << fmt::format("{}|- stmt_measure\n", prefix_);
+		visit_children(node);
+	}
+
+	void visit_stmt_reset(stmt_reset* node)
+	{
+		os_ << fmt::format("{}|- stmt_reset\n", prefix_);
 		visit_children(node);
 	}
 
