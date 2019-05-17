@@ -15,6 +15,11 @@
 namespace tweedledee {
 namespace qasm {
 
+enum class gate_type : unsigned short {
+	defined = 0,
+	opaque = 1,
+};
+
 // A `decl_gate` node has three childs, one of which optional.
 // The children objects are in order:
 //
@@ -25,21 +30,23 @@ namespace qasm {
 //    Always present.
 //
 // * A "list_gops *" for the body.
-//    Always present.
+//    Present if and only if not opaque.
 class decl_gate
     : public ast_node
     , public ast_node_container<decl_gate, ast_node> {
 private:
 	//Configure bits
 	enum {
-		has_params_ = 0
+        has_params_ = 0,
+        has_body_  = 1
 	};
 
 public:
 	class builder {
 	public:
-		explicit builder(ast_context* ctx, uint32_t location, std::string_view identifier)
-		    : statement_(new (*ctx) decl_gate(location, identifier))
+      explicit builder(ast_context* ctx, uint32_t location, std::string_view identifier,
+                       gate_type type = gate_type::defined)
+        : statement_(new (*ctx) decl_gate(location, identifier, type))
 		{}
 
 		void add_parameters(ast_node* parameters)
@@ -55,6 +62,7 @@ public:
 
 		void add_body(ast_node* ops)
 		{
+            statement_->config_bits_ |= (1 << has_body_);
 			statement_->add_child(ops);
 		}
 
@@ -92,6 +100,11 @@ public:
 		return *iter;
 	}
 
+    bool has_body() const
+    {
+        return ((this->config_bits_ >> has_body_) & 1) == 1;
+    }
+
 	ast_node& body()
 	{
 		auto iter = this->begin();
@@ -102,7 +115,7 @@ public:
 	}
 
 private:
-	decl_gate(uint32_t location, std::string_view identifier)
+  decl_gate(uint32_t location, std::string_view identifier, gate_type type)
 	    : ast_node(location)
 	    , identifier_(identifier)
 	{}

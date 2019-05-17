@@ -94,9 +94,7 @@ public:
 	// <statement>   = <decl>
 	//               | <gatedecl> <goplist> }
 	//               | <gatedecl> }
-	//               | opaque <id> <idlist> ;
-	//               | opaque <id> ( ) <idlist> ; 
-	//               | opaque <id> ( <idlist> ) <idlist> ; 
+    //               | <opaquedecl> ;
 	//               | <qop>
 	//               | if ( <id> == <nninteger> ) <qop>
 	//               | barrier <anylist> ;
@@ -126,6 +124,13 @@ public:
 				auto node = parse_gatedecl();
 				context_->add_decl_gate(node->identifier(), node);
 			} break;
+
+
+            // Parse opaque gate declaration
+            case token_kinds::kw_opaque: {
+                auto node = parse_opaquedecl();
+                context_->add_decl_gate(node->identifier(), node);
+            } break;
 
 			// Parse quantum operations (<qop>)
 			case token_kinds::identifier:
@@ -187,7 +192,7 @@ private:
 		return nullptr;
 	}
 
-	/*! \brief Parse a gate declaration (<getedecl>) */
+	/*! \brief Parse a gate declaration (<gatedecl>) */
 	// <gatedecl> = gate <id> <idlist> {
 	//            | gate <id> ( ) <idlist> {
 	//            | gate <id> ( <idlist> ) <idlist> {
@@ -217,6 +222,33 @@ private:
 		}
 		return nullptr;
 	}
+
+	/*! \brief Parse an opaque declaration */
+	// <opaquedecl> = opaque <id> <idlist> ;
+	//              | opaque <id> ( ) <idlist> ; 
+	//              | opaque <id> ( <idlist> ) <idlist> ; 
+	//
+	decl_gate* parse_opaquedecl()
+    {
+        // Mostly follows gat declarations
+		consume_token();
+		auto identifier = expect_and_consume_token(token_kinds::identifier);
+		auto decl = decl_gate::builder(context_.get(), identifier.location, identifier, gate_type::opaque);
+
+		if (try_and_consume_token(token_kinds::l_paren)) {
+			if (not try_and_consume_token(token_kinds::r_paren)) {
+				decl.add_parameters(parse_idlist());
+				expect_and_consume_token(token_kinds::r_paren);
+			}
+		}
+		decl.add_arguments(parse_idlist());
+		expect_and_consume_token(token_kinds::semicolon);
+		context_->clear_scope();
+		if (!error_) {
+			return decl.finish();
+		}
+		return nullptr;
+    }
 
 	/*! \brief Parse gate operation list, i.e. the gate body (<goplist>) */
 	// <goplist> = <uop>
