@@ -104,6 +104,7 @@ public:
 		// OPENQASM M.m; indicating a major version M and minor version m.
 		parse_header();
 		while (!error_) {
+            std::cout << token_name(current_token_.kind) << std::endl;
 			if (current_token_.is(token_kinds::eof)) {
 				break;
 			}
@@ -136,6 +137,7 @@ public:
 			case token_kinds::identifier:
 			case token_kinds::kw_cx:
 			case token_kinds::kw_measure:
+			case token_kinds::kw_reset:
 			case token_kinds::kw_u:
 				context_->add_node(parse_qop());
 				break;
@@ -289,6 +291,9 @@ private:
 		switch (current_token_.kind) {
 		case token_kinds::kw_measure:
 			return parse_measure();
+
+		case token_kinds::kw_reset:
+			return parse_reset();
 
 		case token_kinds::identifier:
 		case token_kinds::kw_cx:
@@ -650,6 +655,17 @@ private:
 		expect_and_consume_token(token_kinds::semicolon);
 		stmt_builder.add_child(arg0);
 		stmt_builder.add_child(arg1);
+		return stmt_builder.finish();
+	}
+
+	stmt_reset* parse_reset()
+	{
+		// If we get here 'reset' was matched
+		auto stmt_builder = stmt_reset::builder(context_.get(), current_token_.location);
+		consume_token();
+		auto arg = parse_argument();
+		expect_and_consume_token(token_kinds::semicolon);
+		stmt_builder.add_child(arg);
 		return stmt_builder.finish();
 	}
 

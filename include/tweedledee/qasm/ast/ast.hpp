@@ -24,6 +24,7 @@
 #include "nodes/stmt_if.hpp"
 #include "nodes/stmt_measure.hpp"
 #include "nodes/stmt_unitary.hpp"
+#include "nodes/stmt_reset.hpp"
 
 // Expression
 #include "nodes/expr_binary_op.hpp"
