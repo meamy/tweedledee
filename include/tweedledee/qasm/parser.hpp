@@ -104,7 +104,6 @@ public:
 		// OPENQASM M.m; indicating a major version M and minor version m.
 		parse_header();
 		while (!error_) {
-            std::cout << token_name(current_token_.kind) << std::endl;
 			if (current_token_.is(token_kinds::eof)) {
 				break;
 			}
@@ -643,7 +642,7 @@ private:
 			break;
 
 		default:
-			std::cout << "Error\n";
+			std::cerr << "Error\n";
 			return nullptr;
 		}
 
