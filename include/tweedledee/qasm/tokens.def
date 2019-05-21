@@ -64,10 +64,13 @@ KEYWORD(openqasm,"OPENQASM")
 KEYWORD(qreg,    "qreg")
 KEYWORD(reset,   "reset")
 KEYWORD(u,       "U")
+// New keywords
 KEYWORD(oracle,  "oracle")
 KEYWORD(for,     "for")
 KEYWORD(qbit,    "qbit")
 KEYWORD(cbit,    "cbit")
+KEYWORD(dirty,   "dirty")
+KEYWORD(ancilla, "ancilla")
 
 // Keywords unary operators
 UOPERATOR(sin,  "sin")

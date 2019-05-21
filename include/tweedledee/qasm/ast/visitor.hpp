@@ -163,6 +163,11 @@ protected:
         (void) node;
     }
 
+	void visit_decl_ancilla(decl_ancilla* node)
+	{
+		(void) node;
+	}
+
 private:
 	// Convenience method for CRTP
 	Derived& derived()
@@ -258,6 +263,10 @@ private:
         case ast_node_kinds::logic_file:
             derived().visit_logic_file(static_cast<logic_file*>(node));
             break;
+
+		case ast_node_kinds::decl_ancilla:
+			derived().visit_decl_ancilla(static_cast<decl_ancilla*>(node));
+			break;
 
 		default:
             std::cerr << "Warning: no visitor for node <" << ast_node_name(node->kind()) << ">" << std::endl;
@@ -467,6 +476,13 @@ public:
     {
         os_ << fmt::format("{}|- logic_file {}\n", prefix_, node->filename());
     }
+
+	void visit_decl_ancilla(decl_ancilla* node)
+	{
+		os_ << fmt::format("{}|- decl_ancilla {} ({}:{})\n", prefix_, node->identifier(),
+		                   node->is_dirty() ? "Dirty" : "Clean",
+		                   node->size());
+	}
 
 private:
 	template<typename NodeT>

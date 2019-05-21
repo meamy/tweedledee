@@ -89,6 +89,19 @@ public:
 		}
 	}
 
+	void add_local(std::string_view identifier, ast_node* node)
+	{
+		if (node == nullptr) {
+			return;
+		}
+		bool ok = scope_.insert({identifier, node}).second;
+		if (!ok) {
+			diagnostic_.report(diagnostic_levels::error,
+			                   source_manager_.location_str(node->location()),
+			                   fmt::format("redefinition of {}", identifier));
+		}
+	}
+
 	ast_node* find_declaration(std::string_view identifier)
 	{
 		auto param = scope_.find(identifier);

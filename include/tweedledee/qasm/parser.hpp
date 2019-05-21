@@ -200,6 +200,30 @@ private:
 		return nullptr;
 	}
 
+	/*! \brief Parse an ancilla (<localdecl>) */
+	// <localdecl> = ancilla <id> [ <nninteger> ] ;
+	//             | dirty ancilla <id> [ <nninteger> ] ;
+	decl_ancilla* parse_localdecl()
+	{
+		auto location = current_token_.location;
+        auto dirty = false;
+        if (try_and_consume_token(token_kinds::kw_dirty)) {
+          dirty = true;
+        }
+
+		expect_and_consume_token(token_kinds::kw_ancilla);
+		auto identifier = expect_and_consume_token(token_kinds::identifier);
+		expect_and_consume_token(token_kinds::l_square);
+		auto size = expect_and_consume_token(token_kinds::nninteger);
+		expect_and_consume_token(token_kinds::r_square);
+		expect_and_consume_token(token_kinds::semicolon);
+
+		if (!error_) {
+          return decl_ancilla::build(context_.get(), location, identifier, size, dirty);
+		}
+		return nullptr;
+	}
+
 	/*! \brief Parse a gate declaration (<gatedecl>) */
 	// <gatedecl> = gate <id> <idlist> {
 	//            | gate <id> ( ) <idlist> {
@@ -284,7 +308,9 @@ private:
     }
 
 	/*! \brief Parse gate operation list, i.e. the gate body (<goplist>) */
-	// <goplist> = <uop>
+	// <goplist> = ancilla <id> [ <integer> ]
+    //           | dirty ancilla <id> [ <integer> ]
+    //           | <uop>
 	//           | barrier <idlist> ;
 	//           | <goplist> <uop>
 	//           | <goplist> barrier <idlist> ;
@@ -293,6 +319,11 @@ private:
 		auto builder = list_gops::builder(context_.get(), current_token_.location);
 		do {
 			switch (current_token_.kind) {
+            case token_kinds::kw_ancilla:
+            case token_kinds::kw_dirty:
+                builder.add_child(parse_localdecl());
+                break;
+
 			case token_kinds::kw_cx:
 				builder.add_child(parse_cnot());
 				break;

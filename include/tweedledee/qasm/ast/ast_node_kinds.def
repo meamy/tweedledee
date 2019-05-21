@@ -38,6 +38,7 @@ AST_NODE(expr_unary_op)
 
 // Extensions
 AST_NODE(logic_file)
+AST_NODE(decl_ancilla)
 
 #undef AST_NODE
 

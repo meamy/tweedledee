@@ -35,3 +35,4 @@
 
 // Extensions
 #include "nodes/logic_file.hpp"
+#include "nodes/decl_ancilla.hpp"
