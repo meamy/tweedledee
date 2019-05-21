@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------
 | This file is distributed under the MIT License.
 | See LICENSE for details.
-| Author(s): Bruno Schmitt < bruno [at] oschmitt [dot] com >
+| Author(s): Bruno Schmitt, Matthew Amy
 *-----------------------------------------------------------------------------*/
 #ifndef AST_NODE
 #define AST_NODE(X)
@@ -35,6 +35,9 @@ AST_NODE(expr_pi)
 AST_NODE(expr_real)
 AST_NODE(expr_binary_op)
 AST_NODE(expr_unary_op)
+
+// Extensions
+AST_NODE(logic_file)
 
 #undef AST_NODE
 

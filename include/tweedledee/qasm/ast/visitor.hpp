@@ -158,6 +158,11 @@ protected:
 		(void) node;
 	}
 
+    void visit_logic_file(logic_file* node)
+    {
+        (void) node;
+    }
+
 private:
 	// Convenience method for CRTP
 	Derived& derived()
@@ -249,6 +254,10 @@ private:
 		case ast_node_kinds::expr_real:
 			derived().visit_expr_real(static_cast<expr_real*>(node));
 			break;
+
+        case ast_node_kinds::logic_file:
+            derived().visit_logic_file(static_cast<logic_file*>(node));
+            break;
 
 		default:
             std::cerr << "Warning: no visitor for node <" << ast_node_name(node->kind()) << ">" << std::endl;
@@ -453,6 +462,11 @@ public:
 	{
 		os_ << fmt::format("{}|- expr_real {}\n", prefix_, node->value());
 	}
+
+    void visit_logic_file(logic_file* node)
+    {
+        os_ << fmt::format("{}|- logic_file {}\n", prefix_, node->filename());
+    }
 
 private:
 	template<typename NodeT>

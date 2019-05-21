@@ -46,6 +46,7 @@ PUNCTUATOR(caret,      "^")
 PUNCTUATOR(semicolon,  ";")
 PUNCTUATOR(equalequal, "==")
 PUNCTUATOR(comma,      ",")
+PUNCTUATOR(colon,      ":")
 
 // preprocessor keywords
 PPKEYWORD(include)
@@ -63,6 +64,10 @@ KEYWORD(openqasm,"OPENQASM")
 KEYWORD(qreg,    "qreg")
 KEYWORD(reset,   "reset")
 KEYWORD(u,       "U")
+KEYWORD(oracle,  "oracle")
+KEYWORD(for,     "for")
+KEYWORD(qbit,    "qbit")
+KEYWORD(cbit,    "cbit")
 
 // Keywords unary operators
 UOPERATOR(sin,  "sin")

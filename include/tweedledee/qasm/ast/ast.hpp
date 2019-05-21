@@ -32,3 +32,6 @@
 #include "nodes/expr_pi.hpp"
 #include "nodes/expr_real.hpp"
 #include "nodes/expr_unary_op.hpp"
+
+// Extensions
+#include "nodes/logic_file.hpp"
