@@ -125,6 +125,16 @@ public:
 		return *(++iter);
 	}
 
+	void set_body(ast_node *ops)
+	{
+        this->config_bits_ |= (1 << has_body_);
+		auto iter = this->begin();
+		if (has_parameters()) {
+			++iter;
+		}
+		this->insert_child(iter, ops);
+	}
+
     bool is_classical() const
     {
         return ((this->config_bits_ >> is_classical_) & 1) == 1;

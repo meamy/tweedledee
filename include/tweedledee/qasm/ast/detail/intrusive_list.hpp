@@ -148,6 +148,20 @@ public:
 	using iterator = intrusive_list_iterator<T>;
 	using const_iterator = intrusive_list_iterator<const T>;
 
+	template<typename Dummy = T,
+	         typename = typename std::enable_if<std::is_same<Dummy, decl_program>::value>::type>
+	void insert(iterator it, T* obj)
+	{
+      insert_impl(obj, it);
+	}
+
+	template<typename U, typename = typename std::enable_if<!std::is_same<T, decl_program>::value, U>::type>
+	void insert(iterator it, const U* parent, T* obj)
+	{
+        insert_impl(obj, it);
+		intrusive_list_access<T>::on_insert(*it, parent);
+	}
+
 	iterator begin()
 	{
 		return iterator(first_);
@@ -177,6 +191,18 @@ private:
 		} else {
 			first_ = obj;
 			last_ = first_;
+		}
+		++size_;
+	}
+
+    void insert_impl(T* obj, iterator it)
+	{
+		if (it != nullptr) {
+            auto tmp_ = std::next(it).operator->();
+            intrusive_list_access<T>::next(*it, obj);
+			intrusive_list_access<T>::next(*obj, tmp_);
+		} else {
+            push_back_impl(obj);
 		}
 		++size_;
 	}
