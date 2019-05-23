@@ -100,6 +100,11 @@ protected:
 		children_.push_back(static_cast<Derived*>(this), ptr);
 	}
 
+    void insert_child(iterator it, T* ptr)
+	{
+        children_.insert(it, static_cast<Derived*>(this), ptr);
+	}
+
 	~ast_node_container() = default;
 
 private:
