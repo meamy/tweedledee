@@ -15,7 +15,7 @@
 namespace tweedledee {
 namespace qasm {
 
-// A `stmt_unitary` node has three children.
+// A `stmt_unitary` node has four children.
 // The children objects are in order:
 class stmt_unitary
     : public ast_node
@@ -56,6 +56,14 @@ public:
 	{
 		auto iter = this->begin();
 		++iter;
+		return *(++iter);
+	}
+  
+	ast_node& arg()
+	{
+		auto iter = this->begin();
+		++iter;
+        ++iter;
 		return *(++iter);
 	}
 

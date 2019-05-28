@@ -8,6 +8,7 @@
 
 #include "tweedledee/qasm/qasm.hpp"
 #include "tweedledee/qasm/ast/visitor.hpp"
+#include "tweedledee/qasm/ast/prettyprint.hpp"
 
 #include <fmt/color.h>
 #include <fmt/format.h>
@@ -22,7 +23,7 @@ int main(int argc, char** argv)
 	}
 	auto program = read_from_file(argv[1]);
 	if (program) {
-	  ast_printer printer(std::cout);
+	  pretty_printer printer(std::cout);
 	  printer.visit(*program);
 	}
 }
