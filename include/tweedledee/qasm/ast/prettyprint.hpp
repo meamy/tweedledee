@@ -32,7 +32,7 @@ public:
 	void visit_decl_gate(decl_gate* node)
     { // This is real nasty
       os_ << prefix_;
-      if (!(node->is_classical() && node->has_body())) {
+      if (!(node->is_classical() || node->has_body())) {
         // Declaration is opaque
         os_ << "opaque";
         if (node->has_parameters()) {
@@ -78,7 +78,7 @@ public:
 	void visit_decl_register(decl_register* node)
 	{
       os_ << prefix_;
-      os_ << node->is_quantum() ? "qreg" : "creg";
+      os_ << (node->is_quantum() ? "qreg" : "creg");
       os_ << fmt::format(" {}[{}];", node->identifier(), node->size()) << std::endl;
 	}
 
@@ -98,7 +98,9 @@ public:
     /* Lists */
 	void visit_list_gops(list_gops* node)
 	{
-      visit_children(node);
+      for (auto& child : *node) {
+        visit(const_cast<ast_node*>(&child));
+      }
 	}
 
 	void visit_list_ids(list_ids* node)
@@ -149,6 +151,8 @@ public:
 
       // Parameters
       auto it = node->begin();
+      it++;
+
       if (decl->has_parameters()) {
         auto params = static_cast<list_ids*>(&decl->parameters());
         os_ << "(";
@@ -199,10 +203,13 @@ public:
     /* Expressions */
 	void visit_expr_binary_op(expr_binary_op* node)
 	{
-      // TODO: can be made prettier by deciding based on the expr type
-      os_ << "(";
-      visit(const_cast<ast_node*>(&node->left()));
-      os_ << ")";
+      if (node->left().has_children()) {
+        os_ << "(";
+        visit(const_cast<ast_node*>(&node->left()));
+        os_ << ")";
+      } else {
+        visit(const_cast<ast_node*>(&node->left()));
+      }
 
       // Print operator
       switch (node->op()) {
@@ -235,9 +242,13 @@ public:
         break;
       }
       
-      os_ << "(";
-      visit(const_cast<ast_node*>(&node->right()));
-      os_ << ")";
+      if (node->right().has_children()) {
+        os_ << "(";
+        visit(const_cast<ast_node*>(&node->right()));
+        os_ << ")";
+      } else {
+        visit(const_cast<ast_node*>(&node->left()));
+      }
 	}
 
 	void visit_expr_reg_idx_ref(expr_reg_idx_ref* node)
@@ -288,9 +299,13 @@ public:
         break;
       }
 
-      os_ << "(";
-      visit(const_cast<ast_node*>(node->begin().operator->()));
-      os_ << ")";
+      if (node->begin()->has_children()) {
+        os_ << "(";
+        visit(const_cast<ast_node*>(node->begin().operator->()));
+        os_ << ")";
+      } else {
+        visit(const_cast<ast_node*>(node->begin().operator->()));
+      }
 	}
 
 	void visit_expr_decl_ref(expr_decl_ref* node)

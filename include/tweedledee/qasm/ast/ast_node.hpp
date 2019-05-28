@@ -37,6 +37,11 @@ public:
 		return location_;
 	}
 
+    bool has_children() const
+    {
+        return true;
+    }
+
 protected:
 	ast_node(uint32_t location)
 	    : location_(location)
@@ -93,6 +98,16 @@ public:
 	{
 		return children_.size();
 	}
+
+    // DANGER: since ast_node is not actually a base class for ast_node_container, both have definitions
+    // of has_children. This is an experiment to see if multiple inheritance can be hacked in such a way to
+    // do what we need, or if the classes need to be redesigned
+    /*
+    bool has_children() const
+    {
+        return children_.size() != 0;
+    }
+    */
 
 protected:
 	void add_child(T* ptr)
