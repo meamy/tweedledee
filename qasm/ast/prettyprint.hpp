@@ -10,8 +10,17 @@
 #include "ast_node_kinds.hpp"
 #include "visitor.hpp"
 
+#include <set>
+
 namespace tweedledee {
 namespace qasm {
+
+static const std::set<std::string_view> qelib_defs {
+  "u3", "u2", "u1", "cx", "id", "u0", "x", "y", "z",
+  "h", "s", "sdg", "t", "tdg", "rx", "ry", "rz",
+  "cz", "cy", "swap", "ch", "ccx", "crz", "cu1",
+  "cu3"
+};
 
 class pretty_printer : public visitor_base<pretty_printer> {
 public:
@@ -30,38 +39,45 @@ public:
 	}
 
 	void visit_decl_gate(decl_gate* node)
-    { // This is real nasty
+    {
+      // If it's part of the standard header, don't output
+      // TODO: a more sensible solution would be to have
+      // the included modules as part of the AST, then only
+      // output declarations not declared in an included module.
+      if (qelib_defs.find(node->identifier()) != qelib_defs.end()) {
+        return;
+      }
+      
       os_ << prefix_;
+
+      std::string gate_type;
       if (!(node->is_classical() || node->has_body())) {
         // Declaration is opaque
-        os_ << "opaque";
-        if (node->has_parameters()) {
-          os_ << "(";
-          visit(const_cast<ast_node*>(&node->parameters()));
-          os_ << ")";
-        }
-        os_ << " ";
-        visit(const_cast<ast_node*>(&node->arguments()));
-        os_ << ";";
+        gate_type = "opaque";
       } else if (node->is_classical()) {
         // Declaration is an oracle
-        os_ << "oracle";
-        if (node->has_parameters()) {
-          os_ << "(";
-          visit(const_cast<ast_node*>(&node->parameters()));
-          os_ << ")";
-        }
-        os_ << " { ";
-        visit(const_cast<ast_node*>(&node->file()));
-        os_ << " }";
-      } else if (node->has_body()) {
+        gate_type = "oracle";
+      } else {
         // Declaration is normal
-        os_ << "gate";
-        if (node->has_parameters()) {
-          os_ << "(";
-          visit(const_cast<ast_node*>(&node->parameters()));
-          os_ << ")";
-        }
+        gate_type = "gate";
+      }
+
+      // Declaration
+      os_ << gate_type << " " << node->identifier();
+
+      // Parameters (optional)
+      if (node->has_parameters()) {
+        os_ << "(";
+        visit(const_cast<ast_node*>(&node->parameters()));
+        os_ << ")";
+      }
+
+      // Arguments
+      os_ << " ";
+      visit(const_cast<ast_node*>(&node->arguments()));
+
+      // Body definition (optional)
+      if (node->has_body()) {
         os_ << " {" << std::endl;
         
         prefix_ += "  ";
@@ -69,10 +85,17 @@ public:
         prefix_.pop_back();
         prefix_.pop_back();
 
-        os_ << prefix_ << "}" << std::endl;
+        os_ << prefix_ << "}";
+      } else if (node->is_classical()) {
+        os_ << " { \"";
+
+        visit(const_cast<ast_node*>(&node->file()));
+
+        os_ << "\" }";
       } else {
-        std::cerr << "Error: malformed gate declaration" << std::endl;
+        os_ << ";";
       }
+      os_ << std::endl << std::endl;
 	}
 
 	void visit_decl_register(decl_register* node)
