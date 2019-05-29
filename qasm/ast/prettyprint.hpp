@@ -113,7 +113,7 @@ public:
 	void visit_decl_ancilla(decl_ancilla* node)
 	{
       os_ << prefix_;
-      os_ << node->is_dirty() ? "dirty " : "";
+      os_ << (node->is_dirty() ? "dirty " : "");
       os_ << "ancilla";
       os_ << fmt::format(" {}[{}];", node->identifier(), node->size()) << std::endl;
 	}
