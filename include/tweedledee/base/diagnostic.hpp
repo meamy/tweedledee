@@ -147,13 +147,24 @@ diagnostic_builder::~diagnostic_builder()
 	diag_.emit(*this);
 }
 
-// class silent_diagnostic_engine : public diagnostic_engine {
-// public:
-// 	virtual void emit(diagnostic_level level, const std::string& message) const override
-// 	{
-// 		(void) level;
-// 		(void) message;
-// 	}
-// };
+class error_diagnostic_engine : public diagnostic_engine {
+public:
+ 	virtual void emit(diagnostic_levels level, const std::string& message) const override
+ 	{
+      using rang::fg;
+      using rang::fgB;
+      using rang::style;
+
+      switch (level) {
+      case diagnostic_levels::error:
+			++num_errors;
+			std::cerr << style::bold << fgB::red << "[error] " << fg::reset << message
+			          << style::reset << '\n';
+			break;
+      default:
+        break;
+ 	  }
+    }
+};
 
 } // namespace tweedledee

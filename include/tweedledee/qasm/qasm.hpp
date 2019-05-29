@@ -19,7 +19,7 @@ namespace tweedledee::qasm {
 inline std::unique_ptr<ast_context> read_from_file(std::string const& path)
 {
 	source_manager source_manager;
-	diagnostic_engine diagnostic;
+	error_diagnostic_engine diagnostic;
 	preprocessor pp_lexer(source_manager, diagnostic);
 	parser parser(pp_lexer, source_manager, diagnostic);
 
@@ -31,7 +31,7 @@ inline std::unique_ptr<ast_context> read_from_file(std::string const& path)
 inline std::unique_ptr<ast_context> read_from_buffer(std::string const& buffer)
 {
 	source_manager source_manager;
-	diagnostic_engine diagnostic;
+	error_diagnostic_engine diagnostic;
 	preprocessor pp_lexer(source_manager, diagnostic);
 	parser parser(pp_lexer, source_manager, diagnostic);
 
