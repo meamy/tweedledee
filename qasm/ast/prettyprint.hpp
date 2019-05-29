@@ -54,7 +54,7 @@ public:
       if (!(node->is_classical() || node->has_body())) {
         // Declaration is opaque
         gate_type = "opaque";
-      } else if (node->is_classical()) {
+      } else if (node->is_classical() && !(node->has_body())) {
         // Declaration is an oracle
         gate_type = "oracle";
       } else {
